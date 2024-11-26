@@ -4,51 +4,59 @@ import 'public_page.dart';
 import 'register_page.dart';
 
 class LoginPage extends StatefulWidget {
+  static const String id = 'login_page';
+
+  const LoginPage({Key? key}) : super(key: key);
+
   @override
-  _LoginPageState createState() => _LoginPageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  late String _email;
+  late String _password;
+  bool _saving = false;
 
-  final _formKey = GlobalKey<FormState>();
+  void _showErrorAlert(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
 
   void _login() async {
-    if (!_formKey.currentState!.validate()) {
+    if (_email.isEmpty || _password.isEmpty) {
+      _showErrorAlert('Erreur', 'Veuillez remplir tous les champs.');
       return;
     }
 
+    setState(() => _saving = true);
+
     try {
       await _auth.signInWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
+        email: _email.trim(),
+        password: _password.trim(),
       );
-      // Navigation vers la page de la liste des articles
+      setState(() => _saving = false);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => PublicPage()),
       );
     } catch (e) {
-      String errorMessage = "Erreur de connexion.";
-      if (e is FirebaseAuthException) {
-        switch (e.code) {
-          case 'user-not-found':
-            errorMessage = "Utilisateur non trouvé.";
-            break;
-          case 'wrong-password':
-            errorMessage = "Mot de passe incorrect.";
-            break;
-          case 'invalid-email':
-            errorMessage = "Email non valide.";
-            break;
-          default:
-            errorMessage = e.message ?? errorMessage;
-        }
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage)),
+      setState(() => _saving = false);
+      _showErrorAlert(
+        'Erreur de connexion',
+        'Email ou mot de passe incorrect. Veuillez réessayer.',
       );
     }
   }
@@ -56,54 +64,83 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Connexion')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              TextFormField(
-                controller: _emailController,
-                decoration: InputDecoration(labelText: 'Email'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Veuillez entrer votre email.";
-                  }
-                  if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                    return "Veuillez entrer un email valide.";
-                  }
-                  return null;
-                },
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            if (_saving)
+              const Opacity(
+                opacity: 0.6,
+                child: ModalBarrier(dismissible: false, color: Colors.black),
               ),
-              TextFormField(
-                controller: _passwordController,
-                decoration: InputDecoration(labelText: 'Mot de passe'),
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Veuillez entrer votre mot de passe.";
-                  }
-                  return null;
-                },
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    'assets/welcome.png', // Assurez-vous que l'image est bien placée dans le dossier assets
+                    height: 150,
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Connexion',
+                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 40),
+                  TextField(
+                    onChanged: (value) => _email = value,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      hintText: 'Email',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 15.0,
+                        horizontal: 20.0,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  TextField(
+                    obscureText: true,
+                    onChanged: (value) => _password = value,
+                    decoration: InputDecoration(
+                      hintText: 'Mot de passe',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 15.0,
+                        horizontal: 20.0,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: _saving ? null : _login,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 15.0,
+                        horizontal: 50.0,
+                      ),
+                    ),
+                    child: const Text('Se connecter'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => RegisterPage()),
+                      );
+                    },
+                    child: const Text('Créer un compte'),
+                  ),
+                ],
               ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _login,
-                child: Text('Se connecter'),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => RegisterPage()),
-                  );
-                },
-                child: Text("Créer un compte"),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
