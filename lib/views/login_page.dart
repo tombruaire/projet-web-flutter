@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'public_page.dart';
 import 'register_page.dart';
 
@@ -14,9 +15,14 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   late String _email;
   late String _password;
   bool _saving = false;
+
+  int maxAttempts = 3; // Nombre maximum de tentatives avant blocage
+  int blockDuration = 1; // Durée initiale du blocage en minutes
+  int attemptWindow = 10; // Fenêtre de temps pour les tentatives en minutes
 
   void _showErrorAlert(String title, String message) {
     showDialog(
@@ -34,6 +40,50 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  Future<bool> _isUserBlocked(String email) async {
+    final doc = await _firestore.collection('loginAttempts').doc(email).get();
+
+    if (!doc.exists) {
+      return false; // Pas de tentatives enregistrées, pas de blocage
+    }
+
+    final data = doc.data()!;
+    final attempts = data['attempts'] ?? [];
+    final blockedUntil = data['blockedUntil']?.toDate();
+
+    // Si l'utilisateur est bloqué
+    if (blockedUntil != null && DateTime.now().isBefore(blockedUntil)) {
+      return true;
+    }
+
+    // Filtrer les tentatives récentes
+    final now = DateTime.now();
+    final recentAttempts = attempts
+        .where((timestamp) =>
+    now.difference(timestamp.toDate()).inMinutes <= attemptWindow)
+        .toList();
+
+    // Si les tentatives dépassent la limite, calculer le prochain blocage
+    if (recentAttempts.length >= maxAttempts) {
+      final newBlockDuration = blockDuration * 2; // Double la durée du blocage
+      await _firestore.collection('loginAttempts').doc(email).set({
+        'attempts': FieldValue.arrayUnion(recentAttempts),
+        'blockedUntil': now.add(Duration(minutes: newBlockDuration)),
+      });
+      blockDuration = newBlockDuration; // Met à jour la durée pour la prochaine fois
+      return true;
+    }
+
+    return false;
+  }
+
+  Future<void> _recordFailedAttempt(String email) async {
+    final docRef = _firestore.collection('loginAttempts').doc(email);
+    await docRef.set({
+      'attempts': FieldValue.arrayUnion([Timestamp.now()]),
+    }, SetOptions(merge: true));
+  }
+
   void _login() async {
     if (_email.isEmpty || _password.isEmpty) {
       _showErrorAlert('Erreur', 'Veuillez remplir tous les champs.');
@@ -42,17 +92,31 @@ class _LoginPageState extends State<LoginPage> {
 
     setState(() => _saving = true);
 
+    if (await _isUserBlocked(_email)) {
+      setState(() => _saving = false);
+      _showErrorAlert(
+        'Compte bloqué',
+        'Votre compte est temporairement bloqué. Veuillez réessayer plus tard.',
+      );
+      return;
+    }
+
     try {
       await _auth.signInWithEmailAndPassword(
         email: _email.trim(),
         password: _password.trim(),
       );
+
+      // Réinitialiser les tentatives après une connexion réussie
+      await _firestore.collection('loginAttempts').doc(_email).delete();
+
       setState(() => _saving = false);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => PublicPage()),
       );
     } catch (e) {
+      await _recordFailedAttempt(_email);
       setState(() => _saving = false);
       _showErrorAlert(
         'Erreur de connexion',
@@ -79,7 +143,7 @@ class _LoginPageState extends State<LoginPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset(
-                    'assets/welcome.png', // Assurez-vous que l'image est bien placée dans le dossier assets
+                    'assets/welcome.png',
                     height: 150,
                   ),
                   const SizedBox(height: 20),

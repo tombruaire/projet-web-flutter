@@ -8,7 +8,7 @@ class ArticleController {
       'title': title,
       'content': content,
       'authorId': authorId,
-      'imageUrl': null, // Vous pouvez ajouter un URL d'image ici
+      'imageUrl': null,
     });
   }
 
