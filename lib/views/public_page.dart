@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -80,46 +79,21 @@ class _PublicPageState extends State<PublicPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Fond gris très clair pour contraste
+      backgroundColor: Colors.white,
       body: Column(
         children: [
-          // Barre de navigation
-          Container(
-            color: Colors.green[800],
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  _username != null ? "Bonjour, $_username 👋" : "Bienvenue sur Game Haven !",
-                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Center(
+              child: Text(
+                _username != null ? "Bonjour, $_username 👋" : "Bienvenue sur Game Haven !",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blueAccent,
                 ),
-                Row(
-                  children: [
-                    if (_auth.currentUser != null)
-                      TextButton(
-                        onPressed: _logout,
-                        child: Text(
-                          'Déconnexion',
-                          style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold),
-                        ),
-                      )
-                    else
-                      TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => LoginPage()),
-                          );
-                        },
-                        child: Text(
-                          'Connexion',
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                  ],
-                )
-              ],
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
           Expanded(
@@ -198,37 +172,6 @@ class _PublicPageState extends State<PublicPage> {
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  const SizedBox(height: 4),
-                                  Align(
-                                    alignment: Alignment.centerRight,
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        if (_auth.currentUser == null) {
-                                          _showLoginDialog(context,
-                                              "Vous devez être connecté pour voir les détails de cet article.");
-                                        } else {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  ArticleDetailsPage(articleId: article.id),
-                                            ),
-                                          );
-                                        }
-                                      },
-                                      child: Text(
-                                        'Lire plus',
-                                        style: TextStyle(fontSize: 12,color: Colors.white),
-                                      ),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.green[800],
-                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
                                 ],
                               ),
                             ),
@@ -243,14 +186,61 @@ class _PublicPageState extends State<PublicPage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _navigateToAddArticle(context),
-        icon: Icon(Icons.add),
-        label: Text("Nouvel Article "),
-
-        
-        backgroundColor: Colors.green[800],
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.blueAccent,
+        shape: CircularNotchedRectangle(),
+        child: SizedBox(
+          height: 60, // Ajuster la hauteur totale pour éviter les débordements
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              // Premier bouton : Nouvel Article
+              Column(
+                mainAxisSize: MainAxisSize.min, // Limiter la taille verticale de la colonne
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.article, color: Colors.white),
+                    onPressed: () => _navigateToAddArticle(context),
+                  ),
+                  Text(
+                    "Nouvel Article",
+                    style: TextStyle(color: Colors.white, fontSize: 10),
+                  ),
+                ],
+              ),
+              // Deuxième bouton : Connexion/Déconnexion
+              Column(
+                mainAxisSize: MainAxisSize.min, // Limiter la taille verticale de la colonne
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      _auth.currentUser != null ? Icons.logout : Icons.login,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      if (_auth.currentUser != null) {
+                        _logout();
+                      } else {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => LoginPage()),
+                        );
+                      }
+                    },
+                  ),
+                  Text(
+                    _auth.currentUser != null ? "Déconnexion" : "Connexion",
+                    style: TextStyle(color: Colors.white, fontSize: 10),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
+
     );
   }
 }

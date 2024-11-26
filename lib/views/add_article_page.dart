@@ -13,8 +13,8 @@ class AddArticlePage extends StatefulWidget {
 class _AddArticlePageState extends State<AddArticlePage> {
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
-  Uint8List? _imageBytes; // Contient les bytes de l'image sélectionnée
-  bool _isUploading = false; // Indicateur d'état de chargement
+  Uint8List? _imageBytes; // Image sélectionnée
+  bool _isUploading = false; // Indicateur de chargement
 
   final ImagePicker _picker = ImagePicker();
 
@@ -35,7 +35,7 @@ class _AddArticlePageState extends State<AddArticlePage> {
     }
   }
 
-  // Fonction pour télécharger l'image et obtenir son URL
+  // Fonction pour télécharger l'image
   Future<String?> _uploadImage(Uint8List imageBytes) async {
     try {
       final storageRef = FirebaseStorage.instance
@@ -45,7 +45,7 @@ class _AddArticlePageState extends State<AddArticlePage> {
       final uploadTask = storageRef.putData(imageBytes);
       final snapshot = await uploadTask;
 
-      return await snapshot.ref.getDownloadURL(); // Retourne l'URL
+      return await snapshot.ref.getDownloadURL();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erreur lors du téléchargement de l\'image : $e')),
@@ -64,11 +64,10 @@ class _AddArticlePageState extends State<AddArticlePage> {
     }
 
     setState(() {
-      _isUploading = true; // Active l'indicateur de chargement
+      _isUploading = true;
     });
 
     try {
-      // Récupération de l'utilisateur connecté
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -77,38 +76,35 @@ class _AddArticlePageState extends State<AddArticlePage> {
         return;
       }
 
-      // Récupération du nom d'utilisateur
       final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
       final username = userDoc.exists ? userDoc['username'] : 'Utilisateur inconnu';
 
       String? imageUrl;
       if (_imageBytes != null) {
-        // Téléchargement de l'image
         imageUrl = await _uploadImage(_imageBytes!);
       }
 
-      // Ajout de l'article à Firestore
       await FirebaseFirestore.instance.collection('articles').add({
         'title': _titleController.text.trim(),
         'content': _contentController.text.trim(),
         'authorId': user.uid,
         'authorName': username,
         'createdAt': FieldValue.serverTimestamp(),
-        'imageUrl': imageUrl, // URL de l'image téléchargée
+        'imageUrl': imageUrl,
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Article ajouté avec succès !')),
       );
 
-      Navigator.pop(context); // Retour à la page précédente
+      Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erreur lors de l\'ajout de l\'article : $e')),
       );
     } finally {
       setState(() {
-        _isUploading = false; // Désactive l'indicateur de chargement
+        _isUploading = false;
       });
     }
   }
@@ -116,6 +112,7 @@ class _AddArticlePageState extends State<AddArticlePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white, // Fond blanc
       appBar: AppBar(
         title: Text('Créer un article'),
       ),
@@ -123,48 +120,72 @@ class _AddArticlePageState extends State<AddArticlePage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            const Text(
+              'Publiez votre article',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 20),
             TextField(
               controller: _titleController,
               decoration: InputDecoration(
                 labelText: 'Titre',
-                border: OutlineInputBorder(),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             TextField(
               controller: _contentController,
+              maxLines: 5,
               decoration: InputDecoration(
                 labelText: 'Contenu',
-                border: OutlineInputBorder(),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
-              maxLines: 5,
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             GestureDetector(
               onTap: _pickImage,
               child: Container(
-                height: 150,
+                height: 200,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
                   borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.grey),
                   color: Colors.grey[200],
                 ),
                 child: _imageBytes != null
-                    ? Image.memory(_imageBytes!, fit: BoxFit.cover)
-                    : Center(
-                  child: Icon(Icons.add_a_photo, color: Colors.grey[800], size: 50),
+                    ? ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.memory(
+                    _imageBytes!,
+                    fit: BoxFit.cover,
+                  ),
+                )
+                    : Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.add_a_photo, color: Colors.grey[800], size: 50),
+                    const SizedBox(height: 10),
+                    const Text('Appuyez pour ajouter une image'),
+                  ],
                 ),
               ),
             ),
-            SizedBox(height: 20),
-            if (_isUploading) CircularProgressIndicator(),
+            const SizedBox(height: 20),
+            if (_isUploading) const CircularProgressIndicator(),
             ElevatedButton(
               onPressed: _isUploading ? null : _saveArticle,
-              child: Text('Publier'),
+              child: const Text('Publier'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
-                textStyle: TextStyle(fontSize: 16),
+                textStyle: const TextStyle(fontSize: 16),
+                padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 50.0),
               ),
             ),
           ],
