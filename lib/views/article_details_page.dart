@@ -8,8 +8,63 @@ class ArticleDetailsPage extends StatelessWidget {
   const ArticleDetailsPage({required this.articleId});
 
   void _editArticle(BuildContext context, DocumentSnapshot article) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Fonctionnalité de modification')),
+    final titleController = TextEditingController(text: article['title']);
+    final contentController = TextEditingController(text: article['content']);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Modifier l\'article'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: titleController,
+                decoration: InputDecoration(labelText: 'Titre'),
+              ),
+              SizedBox(height: 10),
+              TextField(
+                controller: contentController,
+                decoration: InputDecoration(labelText: 'Contenu'),
+                maxLines: 5,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Ferme le pop-up sans enregistrer
+              },
+              child: Text('Annuler'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                try {
+                  // Met à jour l'article dans Firestore
+                  await FirebaseFirestore.instance
+                      .collection('articles')
+                      .doc(article.id)
+                      .update({
+                    'title': titleController.text.trim(),
+                    'content': contentController.text.trim(),
+                  });
+
+                  Navigator.pop(context); // Ferme le pop-up après enregistrement
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Article modifié avec succès !')),
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Erreur lors de la modification : $e')),
+                  );
+                }
+              },
+              child: Text('Enregistrer'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -33,7 +88,7 @@ class ArticleDetailsPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Article Details'),
+        title: Text('Détails de l\'article'),
       ),
       body: FutureBuilder<DocumentSnapshot>(
         future: FirebaseFirestore.instance.collection('articles').doc(articleId).get(),
@@ -63,7 +118,7 @@ class ArticleDetailsPage extends StatelessWidget {
                 ),
                 SizedBox(height: 10),
                 Text(
-                  'By ${article['authorName'] ?? 'Unknown'}',
+                  'Par ${article['authorName'] ?? 'Inconnu'}',
                   style: TextStyle(fontStyle: FontStyle.italic),
                 ),
                 SizedBox(height: 10),

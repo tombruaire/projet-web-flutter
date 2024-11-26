@@ -79,127 +79,146 @@ class _PublicPageState extends State<PublicPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Public Blog'),
-        actions: [
-          if (_auth.currentUser != null)
-            IconButton(
-              icon: Icon(Icons.logout),
-              onPressed: _logout,
-            )
-          else
-            IconButton(
-              icon: Icon(Icons.login),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => LoginPage()),
-                );
-              },
-            ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _navigateToAddArticle(context),
-        child: Icon(Icons.add),
-      ),
-      body: Column(
-        children: [
-          if (_username != null)
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                "Bonjour, $_username 👋",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Custom NavBar
+            Container(
+              color: Colors.blue,
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    _username != null ? "Bonjour, $_username 👋" : "Bienvenue !",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      if (_auth.currentUser != null)
+                        ElevatedButton(
+                          onPressed: _logout,
+                          child: Text('Déconnexion'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                          ),
+                        )
+                      else
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => LoginPage()),
+                            );
+                          },
+                          child: Text('Connexion'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
               ),
             ),
-          Expanded(
-            child: StreamBuilder(
-              stream: FirebaseFirestore.instance
-                  .collection('articles')
-                  .orderBy('createdAt', descending: true)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return Center(child: CircularProgressIndicator());
-                }
+            Expanded(
+              child: StreamBuilder(
+                stream: FirebaseFirestore.instance
+                    .collection('articles')
+                    .orderBy('createdAt', descending: true)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return Center(child: CircularProgressIndicator());
+                  }
 
-                final articles = snapshot.data!.docs;
-                return GridView.builder(
-                  padding: const EdgeInsets.all(8.0),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2, // Nombre de colonnes
-                    crossAxisSpacing: 8.0, // Espacement horizontal
-                    mainAxisSpacing: 8.0, // Espacement vertical
-                    childAspectRatio: 3 / 4, // Ratio largeur/hauteur
-                  ),
-                  itemCount: articles.length,
-                  itemBuilder: (context, index) {
-                    final article = articles[index];
-                    return GestureDetector(
-                      onTap: () {
-                        if (_auth.currentUser == null) {
-                          _showLoginDialog(context, "Vous devez être connecté pour voir les détails de cet article.");
-                        } else {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ArticleDetailsPage(articleId: article.id),
-                            ),
-                          );
-                        }
-                      },
-                      child: Card(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (article['imageUrl'] != null)
-                              Image.network(
-                                article['imageUrl'],
-                                width: double.infinity,
-                                height: 120,
-                                fit: BoxFit.cover,
+                  final articles = snapshot.data!.docs;
+                  return GridView.builder(
+                    padding: const EdgeInsets.all(8.0),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2, // Nombre de colonnes
+                      crossAxisSpacing: 8.0, // Espacement horizontal
+                      mainAxisSpacing: 8.0, // Espacement vertical
+                      childAspectRatio: 3 / 4, // Ratio largeur/hauteur
+                    ),
+                    itemCount: articles.length,
+                    itemBuilder: (context, index) {
+                      final article = articles[index];
+                      return GestureDetector(
+                        onTap: () {
+                          if (_auth.currentUser == null) {
+                            _showLoginDialog(context, "Vous devez être connecté pour voir les détails de cet article.");
+                          } else {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ArticleDetailsPage(articleId: article.id),
                               ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                article['title'],
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
+                            );
+                          }
+                        },
+                        child: Card(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (article['imageUrl'] != null)
+                                Image.network(
+                                  article['imageUrl'],
+                                  width: double.infinity,
+                                  height: 120,
+                                  fit: BoxFit.cover,
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  article['title'],
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                              child: Text(
-                                "Auteur : ${article['authorName'] ?? 'Inconnu'}",
-                                style: TextStyle(fontSize: 12),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Text(
+                                  "Auteur : ${article['authorName'] ?? 'Inconnu'}",
+                                  style: TextStyle(fontSize: 12),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                              child: Text(
-                                article['content'],
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(fontSize: 14),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Text(
+                                  article['content'],
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(fontSize: 14),
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                );
-              },
+                      );
+                    },
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _navigateToAddArticle(context),
+        label: Text('Nouvel Article'),
+        icon: Icon(Icons.add),
+        backgroundColor: Colors.blue,
       ),
     );
   }
