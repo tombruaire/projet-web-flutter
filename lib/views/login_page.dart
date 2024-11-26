@@ -13,11 +13,11 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  final _formKey = GlobalKey<FormState>(); // Key pour la validation du formulaire
+  final _formKey = GlobalKey<FormState>();
 
   void _login() async {
     if (!_formKey.currentState!.validate()) {
-      return; // Arrête si le formulaire n'est pas valide
+      return;
     }
 
     try {

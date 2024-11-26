@@ -14,11 +14,10 @@ class _RegisterPageState extends State<RegisterPage> {
   final _passwordController = TextEditingController();
   final _usernameController = TextEditingController();
 
-  final _formKey = GlobalKey<FormState>(); // Key pour le formulaire
-
+  final _formKey = GlobalKey<FormState>();
   void _register() async {
     if (!_formKey.currentState!.validate()) {
-      return; // Stop si le formulaire n'est pas valide
+      return;
     }
 
     try {

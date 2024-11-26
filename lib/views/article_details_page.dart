@@ -90,14 +90,14 @@ class ArticleDetailsPage extends StatelessWidget {
       appBar: AppBar(
         title: Text('Détails de l\'article'),
       ),
-      body: FutureBuilder<DocumentSnapshot>(
-        future: FirebaseFirestore.instance.collection('articles').doc(articleId).get(),
+      body: StreamBuilder<DocumentSnapshot>(
+        stream: FirebaseFirestore.instance.collection('articles').doc(articleId).snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           }
 
-          if (!snapshot.hasData || snapshot.data == null) {
+          if (!snapshot.hasData || snapshot.data == null || !snapshot.data!.exists) {
             return Center(child: Text('Article introuvable'));
           }
 
@@ -118,7 +118,7 @@ class ArticleDetailsPage extends StatelessWidget {
                 ),
                 SizedBox(height: 10),
                 Text(
-                  'Par ${article['authorName'] ?? 'Inconnu'}',
+                  'Auteur: ${article['authorName'] ?? 'Inconnu'}',
                   style: TextStyle(fontStyle: FontStyle.italic),
                 ),
                 SizedBox(height: 10),
