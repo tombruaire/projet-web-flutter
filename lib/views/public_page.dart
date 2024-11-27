@@ -80,124 +80,124 @@ class _PublicPageState extends State<PublicPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Center(
-              child: Text(
-                _username != null ? "Bonjour, $_username 👋" : "Bienvenue sur Game Haven !",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blueAccent,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Center(
+                child: Text(
+                  _username != null ? "Bonjour, $_username 👋" : "Bienvenue sur Game Haven !",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blueAccent,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
               ),
             ),
-          ),
-          Expanded(
-            child: StreamBuilder(
-              stream: FirebaseFirestore.instance
-                  .collection('articles')
-                  .orderBy('createdAt', descending: true)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return Center(child: CircularProgressIndicator());
-                }
+            Expanded(
+              child: StreamBuilder(
+                stream: FirebaseFirestore.instance
+                    .collection('articles')
+                    .orderBy('createdAt', descending: true)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return Center(child: CircularProgressIndicator());
+                  }
 
-                final articles = snapshot.data!.docs;
-                return GridView.builder(
-                  padding: const EdgeInsets.all(16.0),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 16.0,
-                    mainAxisSpacing: 16.0,
-                    childAspectRatio: 1,
-                  ),
-                  itemCount: articles.length,
-                  itemBuilder: (context, index) {
-                    final article = articles[index];
-                    return GestureDetector(
-                      onTap: () {
-                        if (_auth.currentUser == null) {
-                          _showLoginDialog(context, "Vous devez être connecté pour voir les détails de cet article.");
-                        } else {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ArticleDetailsPage(articleId: article.id),
-                            ),
-                          );
-                        }
-                      },
-                      child: Card(
-                        elevation: 5,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Column(
-                          children: [
-                            Expanded(
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-                                child: article['imageUrl'] != null
-                                    ? Image.network(
-                                  article['imageUrl'],
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
-                                )
-                                    : Container(
-                                  color: Colors.grey[300],
-                                  child: Icon(Icons.image, color: Colors.grey[700], size: 50),
+                  final articles = snapshot.data!.docs;
+                  return GridView.builder(
+                    padding: const EdgeInsets.all(16.0),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 16.0,
+                      mainAxisSpacing: 16.0,
+                      childAspectRatio: 1,
+                    ),
+                    itemCount: articles.length,
+                    itemBuilder: (context, index) {
+                      final article = articles[index];
+                      return GestureDetector(
+                        onTap: () {
+                          if (_auth.currentUser == null) {
+                            _showLoginDialog(context, "Vous devez être connecté pour voir les détails de cet article.");
+                          } else {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ArticleDetailsPage(articleId: article.id),
+                              ),
+                            );
+                          }
+                        },
+                        child: Card(
+                          elevation: 5,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            children: [
+                              Expanded(
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                                  child: article['imageUrl'] != null
+                                      ? Image.network(
+                                    article['imageUrl'],
+                                    fit: BoxFit.cover,
+                                    width: double.infinity,
+                                  )
+                                      : Container(
+                                    color: Colors.grey[300],
+                                    child: Icon(Icons.image, color: Colors.grey[700], size: 50),
+                                  ),
                                 ),
                               ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    article['title'],
-                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    "Auteur : ${article['authorName'] ?? 'Inconnu'}",
-                                    style: TextStyle(fontSize: 12, color: Colors.grey[700]),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      article['title'],
+                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      "Auteur : ${article['authorName'] ?? 'Inconnu'}",
+                                      style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                );
-              },
+                      );
+                    },
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       bottomNavigationBar: BottomAppBar(
         color: Colors.blueAccent,
         shape: CircularNotchedRectangle(),
-        child: SizedBox(
-          height: 60, // Ajuster la hauteur totale pour éviter les débordements
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0), // Ajuste les marges
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              // Premier bouton : Nouvel Article
               Column(
-                mainAxisSize: MainAxisSize.min, // Limiter la taille verticale de la colonne
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
                     icon: Icon(Icons.article, color: Colors.white),
@@ -209,10 +209,8 @@ class _PublicPageState extends State<PublicPage> {
                   ),
                 ],
               ),
-              // Deuxième bouton : Connexion/Déconnexion
               Column(
-                mainAxisSize: MainAxisSize.min, // Limiter la taille verticale de la colonne
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
                     icon: Icon(
@@ -240,7 +238,6 @@ class _PublicPageState extends State<PublicPage> {
           ),
         ),
       ),
-
     );
   }
 }
