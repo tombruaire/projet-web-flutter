@@ -4,7 +4,7 @@ Game Haven est une application Flutter permettant de publier, lire, modifier et 
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-##🚀Fonctionnalités principales
+🚀Fonctionnalités principales
 #🔑 Authentification
 Connexion et inscription avec Firebase Authentication.
 Règles de sécurité mises en place pour restreindre les actions non autorisées.
