@@ -35,8 +35,8 @@ Confirmation avant la suppression pour éviter les erreurs.
 
 ## 🔒 Sécurité
 Seul l'auteur d'un article peut le modifier ou le supprimer (géré via les règles Firebase Storage et Firestore).
-Le mot de pass il est ahche est bien securier
-Bloque temporaire du compte apres 3 tentavies de connexion
+Le mot de passe est haché pour garantir une sécurité optimale. 
+Un blocage temporaire du compte est appliqué après 3 tentatives de connexion échouées.
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ## 📱 Navigation de l'application
