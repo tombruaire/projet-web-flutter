@@ -72,14 +72,19 @@ Firebase Storage
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ## 💻 Installation locale
 Pré-requis :
+
 Flutter SDK
-Firebase CLI (optionnel pour configurer Firebase)
+
+Firebase CLI 
+
 Étapes :
+
 Cloner le projet :
 
 
 git clone https://github.com/tombruaire/projet-web-flutter.git
 cd projet-web-flutter
+
 Installer les dépendances :
 
 
