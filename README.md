@@ -44,8 +44,8 @@ Un blocage temporaire du compte est appliqué après 3 tentatives de connexion �
 Accueil avec un message personnalisé (exemple : Bonjour, Youssef 👋).
 Affichage des articles publiés sous forme de grille.
 Barre de navigation en bas avec :
-Nouvel article (icône + texte).
-Connexion/Déconnexion (icône + texte).
+Nouvel article.
+Connexion/Déconnexion.
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ## 📝 Création d'article
