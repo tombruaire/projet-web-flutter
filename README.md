@@ -4,42 +4,42 @@ Game Haven est une application Flutter permettant de publier, lire, modifier et 
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-🚀Fonctionnalités principales
-#🔑 Authentification
+## 🚀Fonctionnalités principales
+# 🔑 Authentification
 Connexion et inscription avec Firebase Authentication.
 Règles de sécurité mises en place pour restreindre les actions non autorisées.
 Gestion des erreurs d’authentification (blocage temporaire après 3 tentatives).
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-##📰 Création d'articles
+## 📰 Création d'articles
 Les utilisateurs authentifiés peuvent créer de nouveaux articles.
 Upload d'images directement depuis la galerie.
 Ajout de métadonnées pour sécuriser l’accès (UID de l’auteur).
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-##🔍 Lecture des articles
+## 🔍 Lecture des articles
 Affichage des articles sous forme de cartes avec image, titre et auteur.
 Aperçu rapide avec une interface de type galerie.
 Navigation intuitive pour ouvrir les détails d’un article.
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-##✏️ Modification d’articles
+## ✏️ Modification d’articles
 Les auteurs peuvent modifier uniquement leurs articles.
 Interface intuitive avec formulaire de mise à jour.
 Règles Firebase garantissant la sécurité côté serveur.
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-##❌ Suppression d’articles
+## ❌ Suppression d’articles
 Les utilisateurs peuvent supprimer leurs articles depuis la page de détails.
 Confirmation avant la suppression pour éviter les erreurs.
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-🔒 Sécurité
+## 🔒 Sécurité
 Seul l'auteur d'un article peut le modifier ou le supprimer (géré via les règles Firebase Storage et Firestore).
 Le mot de pass il est ahche est bien securier
 Bloque temporaire du compte apres 3 tentavies de connexion
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-##📱 Navigation de l'application
+## 📱 Navigation de l'application
 🌐 Page publique
 Accueil avec un message personnalisé (exemple : Bonjour, Youssef 👋).
 Affichage des articles publiés sous forme de grille.
@@ -48,13 +48,13 @@ Nouvel article (icône + texte).
 Connexion/Déconnexion (icône + texte).
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-##📝 Création d'article
+## 📝 Création d'article
 Formulaire pour saisir le titre et le contenu.
 Bouton pour sélectionner une image depuis la galerie.
 Prévisualisation de l'image avant publication.
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-🖋️ Détails d’un article
+## 🖋️ Détails d’un article
 Affichage des détails de l'article : image, titre, auteur et contenu.
 Actions disponibles pour l’auteur :
 Modifier l’article (via un popup).
@@ -62,7 +62,7 @@ Supprimer l’article.
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-##🛠️ Technologies utilisées
+## 🛠️ Technologies utilisées
 Framework principal
 Flutter (UI)
 Backend et stockage
@@ -70,7 +70,7 @@ Firebase Authentication
 Firebase Firestore
 Firebase Storage
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-##💻 Installation locale
+## 💻 Installation locale
 Pré-requis :
 Flutter SDK
 Firebase CLI (optionnel pour configurer Firebase)
@@ -94,29 +94,25 @@ flutter run
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-##📷 Captures d’écran supplémentaires
-Exemple :
-Page de connexion :
-![image](https://github.com/user-attachments/assets/4a4567bf-7f3d-4fab-bf51-ac502d1b433b)
+## 📷 Captures d’écran supplémentaires
+Page de connexion
+<img src="https://github.com/user-attachments/assets/4a4567bf-7f3d-4fab-bf51-ac502d1b433b" alt="Page de connexion" width="500">
 
-Page d'enregistrement :
-![image](https://github.com/user-attachments/assets/f09716c8-6ac6-4dc5-9e4a-081a98845d6f)
+Page d'enregistrement
+<img src="https://github.com/user-attachments/assets/f09716c8-6ac6-4dc5-9e4a-081a98845d6f" alt="Page d'enregistrement" width="500">
 
+Page publique avec liste des articles
+<img src="https://github.com/user-attachments/assets/c56badf8-5b16-4a98-9edd-ad54737fd849" alt="Page publique avec liste des articles" width="500">
 
-Page publique avec liste des articles :
-![image](https://github.com/user-attachments/assets/c56badf8-5b16-4a98-9edd-ad54737fd849)
+Page de modification
+<img src="https://github.com/user-attachments/assets/902079d0-699c-458b-9dba-867692e49d1a" alt="Page de modification" width="500">
 
-Page de modification : 
-![image](https://github.com/user-attachments/assets/902079d0-699c-458b-9dba-867692e49d1a)
-
-
-Page de création d'artcile : 
-
-![image](https://github.com/user-attachments/assets/b36e61f1-5de3-490a-96f3-5b81e25f6211)
+Page de création d'article
+<img src="https://github.com/user-attachments/assets/b36e61f1-5de3-490a-96f3-5b81e25f6211" alt="Page de création d'article" width="500">
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-##✨ Contributeurs
+ 
+## ✨ Contributeurs
 Youssef Alaoui El Mrani 
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
